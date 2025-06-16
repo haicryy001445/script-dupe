@@ -1,0 +1,53 @@
+-- Pastebin: How to make a Roblox Loading Screen (Jun 30, 2023)
+local Players = game:GetService("Players")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- สร้าง ScreenGui และ Frame ครอบหน้าจอ
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.Parent = playerGui
+
+local frame = Instance.new("Frame", ScreenGui)
+frame.Size = UDim2.new(1,0,1,0)
+frame.BackgroundTransparency = 0
+frame.BackgroundColor3 = Color3.fromRGB(0,20,40)
+
+local textLabel = Instance.new("TextLabel", frame)
+textLabel.Size = UDim2.new(1,0,1,0)
+textLabel.BackgroundColor3 = Color3.fromRGB(0,20,40)
+textLabel.Font = Enum.Font.GothamBold
+textLabel.TextColor3 = Color3.new(.8,.8,.8)
+textLabel.Text = "Loading"
+textLabel.TextSize = 28
+
+-- เพิ่ม ImageLabel เป็น loading ring
+local loadingRing = Instance.new("ImageLabel", frame)
+loadingRing.Size = UDim2.new(0,256,0,256)
+loadingRing.BackgroundTransparency = 1
+loadingRing.Image = "rbxassetid://4965945816"
+loadingRing.AnchorPoint = Vector2.new(0.5,0.5)
+loadingRing.Position = UDim2.new(0.5,0,0.5,0)
+
+-- ลบ default loading screen
+ReplicatedFirst:RemoveDefaultLoadingScreen()
+
+-- สร้าง tween ให้หมุน ring ไปเรื่อยๆ
+local tweenInfo = TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1)
+local tween = TweenService:Create(loadingRing, tweenInfo, {Rotation = 360})
+tween:Play()
+
+-- รอ 5 วินาที หรือจนกว่าเกมโหลดเสร็จ
+wait(5)
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+-- หายไปเมื่อโหลดเสร็จ
+loadingRing.Visible = false
+frame:TweenPosition(UDim2.new(0,0,1,0), Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2)
+wait(2)
+ScreenGui:Destroy()
